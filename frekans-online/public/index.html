@@ -19,7 +19,27 @@
 <h3>01 · Hazırlık</h3><ol><li>Bir oyuncu lobi kurar ve davet bağlantısını arkadaşlarına gönderir.</li><li>Davet edilenler oyuncu adını girerek katılır. Her takımda en az iki çevrimiçi oyuncu bulunmalıdır.</li><li>Takımlarını seçin. Lobi sahibi kart havuzunu ve takım isimlerini ayarlayıp oyunu başlatır.</li></ol>
 <h3>02 · Bir tur nasıl oynanır?</h3><ol><li><strong>İpucu veren:</strong> Aktif takımın sırayla seçilen oyuncusu kartını seçer ve gizli hedefi açar. Hedefi yalnızca o görür.</li><li><strong>İpucu:</strong> Kartın iki ucu arasında hedefe uygun bir örnek yazar. İpucu gönderildiğinde hedef kapanır.</li><li><strong>Tahmin:</strong> Aktif takım özel sohbetinde tartışır. Belirlenen oyuncu ibreyi sürükleyerek tahmini kilitler.</li><li><strong>Rakip tahmini:</strong> Rakip takımın belirlenen oyuncusu gerçek hedefin ibrenin solunda mı sağında mı olduğunu seçer.</li><li><strong>Sonuç:</strong> Hedef açılır ve puanlar otomatik hesaplanır. Lobi sahibi sonraki turu başlatır.</li></ol>
 <div class="example"><strong>Örnek kart: Kötü yemek ↔ Harika yemek</strong><p style="margin-bottom:0">Hedef sağa yakınsa ipucu veren “İskender kebap” diyebilir. Takımı bu yemeği ne kadar iyi bulduğuna göre ibreyi konumlandırır.</p></div>
-<h3>03 · Puanlama</h3><div class="points" aria-label="Hedefin puan bölgeleri: 2, 3, 4, 3, 2"><span style="background:#f29d91">2</span><span style="background:#f9d77e">3</span><span style="background:#a9f0c9">4</span><span style="background:#f9d77e">3</span><span style="background:#f29d91">2</span></div><p>Merkez 4 puan, yan bölgeler 3 ve 2 puan; hedefin dışı 0 puan. Rakip, hedefin doğru tarafını seçerse 1 bonus puan alır. Aktif takım 4 puan alırsa rakip bonus alamaz.</p>
+<h3>03 · Puanlama</h3><div id="rulesDemo" style="background:#202942;border:1px solid #495676;border-radius:14px;padding:12px;margin:12px 0">
+<svg id="rulesDial" viewBox="0 0 560 305" style="display:block;width:100%;height:auto" role="img" aria-label="Örnek puanlama kadranı ve kırmızı ibre"></svg>
+<label for="rulesGuess" style="display:block;font-size:13px;color:var(--muted)">Örnek ibreyi hareket ettir</label>
+<input id="rulesGuess" type="range" min="0" max="100" step="1" value="65" style="width:100%;accent-color:#ff796e;cursor:pointer">
+<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><strong id="rulesPoints" aria-live="polite">4 puan · Tam isabet!</strong><button type="button" class="ghost" onclick="document.getElementById('rulesGuess').value=65;document.getElementById('rulesGuess').dispatchEvent(new Event('input'))">↻ Sıfırla</button></div>
+<p class="mini" id="rulesSide" style="margin:6px 0 0">Tam isabette rakip bonus alamaz.</p>
+</div>
+<script>
+(()=>{const svg=document.getElementById('rulesDial'),input=document.getElementById('rulesGuess'),target=65;
+const point=(r,v)=>{const a=Math.PI*(1-v/100);return [280+r*Math.cos(a),270-r*Math.sin(a)]};
+const fmt=p=>p.map(n=>n.toFixed(2)).join(' ');
+const sector=(a,b,r)=>`M 280 270 L ${fmt(point(r,a))} A ${r} ${r} 0 0 1 ${fmt(point(r,b))} Z`;
+function draw(){const v=Number(input.value),d=Math.abs(v-target),n=d<=2?4:d<=6?3:d<=10?2:0;
+let out=`<path d="${sector(0,100,250)}" fill="#374563" stroke="#889abb" stroke-width="2"/>`;
+for(let i=0;i<=100;i+=5)out+=`<path d="M ${fmt(point(249,i))} L ${fmt(point(i%25===0?233:240,i))}" stroke="#b8c5e1" opacity=".65" stroke-width="2"/>`;
+for(const [a,b,p,c] of [[-10,-6,2,'#f29d91'],[-6,-2,3,'#f9d77e'],[-2,2,4,'#a9f0c9'],[2,6,3,'#f9d77e'],[6,10,2,'#f29d91']]){const q=point(199,target+(a+b)/2);out+=`<path d="${sector(target+a,target+b,231)}" fill="${c}" stroke="#28334d" stroke-width="1.5"/><text x="${q[0]}" y="${q[1]}" text-anchor="middle" dominant-baseline="central" fill="#202942" font-size="16" font-weight="900">${p}</text>`;}
+out+=`<path d="M ${fmt(point(12,v-50))} L ${fmt(point(242,v))} L ${fmt(point(12,v+50))} Z" fill="#ff796e" stroke="#fff2e2" stroke-width="2"/><circle cx="280" cy="270" r="16" fill="#1a2239" stroke="#7383a8" stroke-width="2"/><circle cx="280" cy="270" r="7" fill="#ff796e"/><text x="30" y="295" fill="#aebcda" font-size="13">SOL</text><text x="530" y="295" fill="#aebcda" font-size="13" text-anchor="end">SAĞ</text>`;svg.innerHTML=out;
+document.getElementById('rulesPoints').textContent=n+' puan · '+(n===4?'Tam isabet!':n===3?'Çok yakın!':n===2?'Hedefte!':'Hedef dışında');document.getElementById('rulesSide').textContent=n===4?'Tam isabette rakip bonus alamaz.':'Rakip '+(v<target?'sağ':'sol')+' yönünü seçerse +1 puan alır.';}
+input.addEventListener('input',draw);draw();})();
+</script>
+<p>Merkez 4 puan, yan bölgeler 3 ve 2 puan; hedefin dışı 0 puan. Rakip, hedefin doğru tarafını seçerse 1 bonus puan alır. Aktif takım 4 puan alırsa rakip bonus alamaz.</p>
 <h3>04 · Kazanma ve uzatma</h3><p>Bir takım 10 veya daha fazla puana ulaştığında önde olan takım kazanır. Beraberlikte takımlar birer ek tur oynar; eşitlik bozulana kadar uzatma sürer. Aktif takım 4 puan almasına rağmen hâlâ gerideyse ve oyun sona ermemişse yeniden oynar (uzatma dışında).</p>
 <h3>05 · Geçerli ipuçları ve sohbet</h3><ul><li>İpucun tek bir anlamlı örnek veya kavram olsun; sayıyla, yüzdeyle, kadran konumuyla ya da doğrudan yönle hedefi tarif etme.</li><li>İpucu veren hedefi gördükten sonra sonuç açıklanana kadar sohbet gönderemez. Harici yollarla da takımını yönlendirmemelidir.</li><li>Genel sohbeti iki takım, takım sohbetini yalnızca kendi takımın görür.</li></ul>
 <h3>06 · Özel kartlar</h3><p>Lobide iki farklı uç yazarak özel kart ekleyebilirsin. İpucu veren, hedefi açmadan önce yeni kart seçebilir veya sadece o tur için kendi kartını oluşturabilir. Kaydedilen kartlar lobi boyunca saklanır.</p>
